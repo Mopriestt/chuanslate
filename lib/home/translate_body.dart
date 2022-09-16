@@ -30,10 +30,6 @@ class TranslateBodyState extends State<TranslateBody> {
       style: const TextStyle(fontSize: 32),
       cursorColor: Theme.of(context).hintColor,
       maxLines: null,
-/*      onChanged: (input) async {
-        _translation = await context.read<TranslateService>().translate(input);
-        setState(() {});
-      },*/
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:chuanslate/service/translate_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:translator/translator.dart';
 
 class TranslateBody extends StatefulWidget {
   const TranslateBody({super.key});
@@ -11,13 +12,23 @@ class TranslateBody extends StatefulWidget {
 
 class TranslateBodyState extends State<TranslateBody> {
   late final _controller = TextEditingController()..addListener(onInputChanged);
-  String _translation = '';
+  Translation? _translation;
+  DateTime _lastRequestTime = DateTime.now();
 
   void resetInput() => setState(() => _controller.text = '');
 
-  void onInputChanged() async {
-    _translation = await context.read<TranslateService>().translate(_controller.text);
-    setState(() {});
+  void onInputChanged() {
+    _lastRequestTime = DateTime.now();
+    int timeStampMs = _lastRequestTime.millisecondsSinceEpoch;
+
+    context
+        .read<TranslateService>()
+        .translate(_controller.text)
+        .then((translation) {
+      if (_lastRequestTime.millisecondsSinceEpoch == timeStampMs) {
+        setState(() => _translation = translation);
+      }
+    });
   }
 
   Widget _buildInputText(BuildContext context) {
@@ -35,7 +46,7 @@ class TranslateBodyState extends State<TranslateBody> {
 
   Widget _buildTranslationText(BuildContext context) {
     return Text(
-      _translation,
+      _translation?.text ?? '',
       style: TextStyle(
         fontSize: 32,
         color: Theme.of(context).hintColor.withOpacity(0.6),
@@ -49,12 +60,12 @@ class TranslateBodyState extends State<TranslateBody> {
       child: Column(
         children: [
           _buildInputText(context),
-          if (_translation.isNotEmpty)
+          if (_translation != null)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 24, horizontal: 120),
               child: Divider(thickness: 2),
             ),
-          if (_translation.isNotEmpty)
+          if (_translation != null)
             Align(
               alignment: Alignment.centerLeft,
               child: _buildTranslationText(context),

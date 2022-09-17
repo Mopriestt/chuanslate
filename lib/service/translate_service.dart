@@ -1,6 +1,6 @@
 import 'package:translator/translator.dart';
 
-bool isMostlyEnglish(String input) {
+bool isMajorEnglish(String input) {
   int cnLetter = 0, enLetter = 0;
   for (int i = 0; i < input.length; i++) {
     if (input[i].trim().isEmpty) continue;
@@ -10,20 +10,16 @@ bool isMostlyEnglish(String input) {
 }
 
 class TranslateService {
-  final translator = GoogleTranslator()..baseUrl = 'translate.google.com';
+  final _translator = GoogleTranslator();
 
-  DateTime latestRequestTime = DateTime.now();
-
-  Future<String> translate(String input) {
+  Future<Translation?> translate(String input) {
     input = input.trim();
-    if (input.isEmpty) return Future.value('');
+    if (input.isEmpty) return Future.value(null);
 
-    final langFrom = isMostlyEnglish(input) ? 'en' : 'zh-cn';
+    final langFrom = isMajorEnglish(input) ? 'en' : 'zh-cn';
     final langTo = langFrom == 'en' ? 'zh-cn' : 'en';
 
-    return input
-        .translate(from: langFrom, to: langTo)
-        .then((translation) => translation.text);
+    return _translator.translate(input, from: langFrom, to: langTo);
   }
 }
 

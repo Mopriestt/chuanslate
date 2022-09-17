@@ -13,19 +13,19 @@ class TranslateBody extends StatefulWidget {
 class TranslateBodyState extends State<TranslateBody> {
   late final _controller = TextEditingController()..addListener(onInputChanged);
   Translation? _translation;
-  DateTime _lastRequestTime = DateTime.now();
+  int _lastRequestTimeMs = 0;
 
   void resetInput() => setState(() => _controller.text = '');
 
   void onInputChanged() {
-    _lastRequestTime = DateTime.now();
-    int timeStampMs = _lastRequestTime.millisecondsSinceEpoch;
+    _lastRequestTimeMs = DateTime.now().millisecondsSinceEpoch;
+    final timeStampMs = _lastRequestTimeMs;
 
     context
         .read<TranslateService>()
         .translate(_controller.text)
         .then((translation) {
-      if (_lastRequestTime.millisecondsSinceEpoch == timeStampMs) {
+      if (_lastRequestTimeMs == timeStampMs) {
         setState(() => _translation = translation);
       }
     });

@@ -11,7 +11,7 @@ class CacheService {
   Future<void> cacheWord(String source, Translation translation) async {
     _cache[source] = translation;
     _sources.add(source);
-    while (_cache.length > cacheLimit) {
+    while (_cache.length > cacheLimit && _sources.isNotEmpty) {
       _cache.remove(_sources.removeFirst());
     }
   }

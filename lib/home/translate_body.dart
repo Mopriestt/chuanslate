@@ -74,7 +74,7 @@ class TranslateBodyState extends State<TranslateBody> {
       child: Column(
         children: [
           _buildInputText(context),
-          if (_translation != null)
+          if (_translation != null && _translation?.text.isNotEmpty == true)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 24, horizontal: 120),
               child: Divider(thickness: 2),

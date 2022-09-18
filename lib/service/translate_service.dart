@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chuanslate/service/settings_service.dart';
 import 'package:translator/translator.dart';
 import 'package:chuanslate/service/cache_service.dart';
 
@@ -14,26 +15,45 @@ bool isMajorlyEnglish(String input) {
 
 class TranslateService {
   static const outWallUrl = 'translate.googleapis.com';
-  static const inWallUrl = 'www.googleapis.cn';
+  static const inWallUrl = 'translate.google.cn';
+  static const enLang = 'en';
 
+  final SettingsService _settingsService;
   final _translator = GoogleTranslator();
   final _cacheService = CacheService();
+
+  late String _cnLang;
+  late bool _gfwMode;
+
+  TranslateService(this._settingsService) {
+    fetchChineseLanguage();
+    fetchIsGfwMode();
+  }
+
+  void fetchChineseLanguage() => _cnLang = _settingsService.chineseLanguage;
+
+  void fetchIsGfwMode() {
+    _gfwMode = _settingsService.isGfwMode;
+    _translator.baseUrl = _gfwMode ? inWallUrl : outWallUrl;
+  }
 
   Future<Translation?> translate(String input) async {
     input = input.trim();
     if (input.isEmpty) return null;
-    final cachedTranslation = _cacheService.getCachedWord(input);
+
+    final cnLang = _cnLang;
+    final cachedTranslation = _cacheService.getCachedWord(input, cnLang);
     if (cachedTranslation != null) return cachedTranslation;
 
-    final langFrom = isMajorlyEnglish(input) ? 'en' : 'zh-cn';
-    final langTo = langFrom == 'en' ? 'zh-cn' : 'en';
+    final langFrom = isMajorlyEnglish(input) ? enLang : cnLang;
+    final langTo = langFrom == enLang ? cnLang : enLang;
     final translation = await _translator.translate(
       input,
       from: langFrom,
       to: langTo,
     );
 
-    unawaited(_cacheService.cacheWord(input, translation));
+    unawaited(_cacheService.cacheWord(input, translation, cnLang));
     return translation;
   }
 }

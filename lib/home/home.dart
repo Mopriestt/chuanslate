@@ -1,6 +1,9 @@
 import 'package:chuanslate/home/translate_body.dart';
+import 'package:chuanslate/service/settings_service.dart';
+import 'package:chuanslate/service/translate_service.dart';
 import 'package:flutter/material.dart';
 import 'package:chuanslate/strings.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -12,6 +15,22 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final translateBodyKey = GlobalKey<TranslateBodyState>();
 
+  // Toggles target chinese translation between zh-cn and zh-tw.
+  Future<void> _toggleChineseLanguage() async {
+    await context.read<SettingsService>().toggleChineseLanguage();
+    if (!mounted) return;
+    context.read<TranslateService>().fetchChineseLanguage();
+    translateBodyKey.currentState?.onInputChanged();
+    setState(() {});
+  }
+
+  Future<void> _toggleGfwMode() async {
+    await context.read<SettingsService>().toggleGfwMode();
+    if (!mounted) return;
+    context.read<TranslateService>().fetchIsGfwMode();
+    setState(() {});
+  }
+
   AppBar appBar() => AppBar(
         title: const Text(
           appName,
@@ -20,6 +39,30 @@ class _HomeState extends State<Home> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: TextButton(
+              onPressed: _toggleChineseLanguage,
+              child: Text(
+                context.watch<SettingsService>().chineseLanguage == 'zh-cn'
+                    ? '简'
+                    : '繁',
+                style: const TextStyle(fontSize: 24),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: _toggleGfwMode,
+            child: Text(
+              '墙',
+              style: TextStyle(
+                fontSize: 24,
+                color: context.watch<SettingsService>().isGfwMode
+                    ? Colors.blueAccent
+                    : Colors.black54,
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: IconButton(

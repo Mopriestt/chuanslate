@@ -8,7 +8,9 @@ class CacheService {
   final Map<String, Translation> _cache = {};
   final Queue<String> _sources = Queue();
 
-  Future<void> cacheWord(String source, Translation translation) async {
+  Future<void> cacheWord(
+      String source, Translation translation, String cnLang) async {
+    source += '@$cnLang@';
     _cache[source] = translation;
     _sources.add(source);
     while (_cache.length > cacheLimit && _sources.isNotEmpty) {
@@ -16,5 +18,6 @@ class CacheService {
     }
   }
 
-  Translation? getCachedWord(String source) => _cache[source];
+  Translation? getCachedWord(String source, String cnLang) =>
+      _cache['$source@$cnLang@'];
 }

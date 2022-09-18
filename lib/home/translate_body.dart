@@ -14,21 +14,33 @@ class TranslateBodyState extends State<TranslateBody> {
   late final _controller = TextEditingController()..addListener(onInputChanged);
   Translation? _translation;
   int _lastRequestTimeMs = 0;
+  double _fontSize = 32;
 
   void resetInput() => setState(() => _controller.text = '');
 
-  void onInputChanged() {
+  void _setFontSize(int textLen) => setState(() {
+        if (textLen < 40) {
+          _fontSize = 32;
+        } else if (textLen < 80) {
+          _fontSize = 28;
+        } else {
+          _fontSize = 24;
+        }
+      });
+
+  void onInputChanged() async {
     _lastRequestTimeMs = DateTime.now().millisecondsSinceEpoch;
     final timeStampMs = _lastRequestTimeMs;
 
-    context
+    _setFontSize(_controller.text.length);
+
+    final translation = await context
         .read<TranslateService>()
-        .translate(_controller.text)
-        .then((translation) {
-      if (_lastRequestTimeMs == timeStampMs) {
-        setState(() => _translation = translation);
-      }
-    });
+        .translate(_controller.text);
+
+    if (_lastRequestTimeMs == timeStampMs) {
+      setState(() => _translation = translation);
+    }
   }
 
   Widget _buildInputText(BuildContext context) {
@@ -38,7 +50,7 @@ class TranslateBodyState extends State<TranslateBody> {
         hintText: 'Enter here',
         hintStyle: TextStyle(color: Theme.of(context).hintColor),
       ),
-      style: const TextStyle(fontSize: 32),
+      style: TextStyle(fontSize: _fontSize),
       cursorColor: Theme.of(context).hintColor,
       maxLines: null,
     );
@@ -48,7 +60,7 @@ class TranslateBodyState extends State<TranslateBody> {
     return Text(
       _translation?.text ?? '',
       style: TextStyle(
-        fontSize: 32,
+        fontSize: _fontSize,
         color: Theme.of(context).hintColor.withOpacity(0.6),
       ),
     );

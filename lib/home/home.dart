@@ -27,7 +27,16 @@ class _HomeState extends State<Home> {
   Future<void> _toggleGfwMode() async {
     await context.read<SettingsService>().toggleGfwMode();
     if (!mounted) return;
+    final isGfwMode = context.read<SettingsService>().isGfwMode;
     context.read<TranslateService>().fetchIsGfwMode();
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('GFW Mode ${isGfwMode ? "ON" : "OFF"} !'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
     setState(() {});
   }
 

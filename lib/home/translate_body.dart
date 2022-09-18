@@ -14,12 +14,14 @@ class TranslateBodyState extends State<TranslateBody> {
   late final _controller = TextEditingController()..addListener(onInputChanged);
   Translation? _translation;
   int _lastRequestTimeMs = 0;
-  double _fontSize = 32;
+  double _fontSize = 36;
 
   void resetInput() => setState(() => _controller.text = '');
 
   void _setFontSize(int textLen) => setState(() {
-        if (textLen < 40) {
+        if (textLen < 15) {
+          _fontSize = 36;
+        } else if (textLen < 40) {
           _fontSize = 32;
         } else if (textLen < 80) {
           _fontSize = 28;

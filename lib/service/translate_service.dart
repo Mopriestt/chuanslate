@@ -23,21 +23,14 @@ class TranslateService {
   final _cacheService = CacheService();
 
   late String _cnLang;
-  late bool _gfwMode;
 
   TranslateService(this._settingsService) {
     fetchChineseLanguage();
-    fetchIsGfwMode();
   }
 
   void fetchChineseLanguage() => _cnLang = _settingsService.chineseLanguage;
 
-  void fetchIsGfwMode() {
-    _gfwMode = _settingsService.isGfwMode;
-    _translator.baseUrl = _gfwMode ? inWallUrl : outWallUrl;
-  }
-
-  Future<Translation?> translate(String input) async {
+  Future<Translation?> translate(String input, {bool inWall = false}) async {
     input = input.trim();
     if (input.isEmpty) return null;
 
@@ -45,6 +38,7 @@ class TranslateService {
     final cachedTranslation = _cacheService.getCachedWord(input, cnLang);
     if (cachedTranslation != null) return cachedTranslation;
 
+    _translator.baseUrl = inWall ? inWallUrl : outWallUrl;
     final langFrom = isMajorlyEnglish(input) ? enLang : cnLang;
     final langTo = langFrom == enLang ? cnLang : enLang;
     final translation = await _translator.translate(

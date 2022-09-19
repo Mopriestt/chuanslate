@@ -1,3 +1,4 @@
+import 'package:chuanslate/service/settings_service.dart';
 import 'package:chuanslate/service/translate_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,9 +37,13 @@ class TranslateBodyState extends State<TranslateBody> {
 
     _setFontSize(_controller.text.length);
 
-    final translation = await context
-        .read<TranslateService>()
-        .translate(_controller.text);
+    final translationService = context.read<TranslateService>();
+    final translationFutures = Future.any([
+      translationService.translate(_controller.text, inWall: false),
+      if (context.read<SettingsService>().isGfwMode)
+        translationService.translate(_controller.text, inWall: true),
+    ]);
+    final translation = await translationFutures;
 
     if (_lastRequestTimeMs == timeStampMs) {
       setState(() => _translation = translation);

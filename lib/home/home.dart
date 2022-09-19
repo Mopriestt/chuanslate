@@ -28,7 +28,6 @@ class _HomeState extends State<Home> {
     await context.read<SettingsService>().toggleGfwMode();
     if (!mounted) return;
     final isGfwMode = context.read<SettingsService>().isGfwMode;
-    context.read<TranslateService>().fetchIsGfwMode();
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -48,16 +47,13 @@ class _HomeState extends State<Home> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: TextButton(
-              onPressed: _toggleChineseLanguage,
-              child: Text(
-                context.watch<SettingsService>().chineseLanguage == 'zh-cn'
-                    ? '简'
-                    : '繁',
-                style: const TextStyle(fontSize: 24),
-              ),
+          TextButton(
+            onPressed: _toggleChineseLanguage,
+            child: Text(
+              context.watch<SettingsService>().chineseLanguage == 'zh-cn'
+                  ? '简'
+                  : '繁',
+              style: const TextStyle(fontSize: 24),
             ),
           ),
           TextButton(
@@ -72,13 +68,10 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: IconButton(
-              onPressed: () => translateBodyKey.currentState?.resetInput(),
-              icon: const Icon(Icons.clear, color: Colors.black),
-            ),
-          )
+          IconButton(
+            onPressed: () => translateBodyKey.currentState?.resetInput(),
+            icon: const Icon(Icons.clear, color: Colors.black),
+          ),
         ],
       );
 

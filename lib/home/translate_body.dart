@@ -45,6 +45,8 @@ class TranslateBodyState extends State<TranslateBody> {
     ]);
     final translation = await translationFutures;
 
+    if (!mounted) return;
+
     if (_lastRequestTimeMs == timeStampMs) {
       setState(() => _translation = translation);
     }

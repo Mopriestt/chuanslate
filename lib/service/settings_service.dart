@@ -8,17 +8,14 @@ class SettingsService {
 
   Future<void> init() async => sp = await SharedPreferences.getInstance();
 
-  Future<void> toggleChineseLanguage() async {
-    final currentCnLang = chineseLanguage;
-    await sp.setString(
-      chineseLanguageKey,
-      currentCnLang == 'zh-cn' ? 'zh-tw' : 'zh-cn',
-    );
-  }
+  Future<bool> toggleChineseLanguage() => sp.setString(
+        chineseLanguageKey,
+        chineseLanguage == 'zh-cn' ? 'zh-tw' : 'zh-cn',
+      );
 
   String get chineseLanguage => sp.getString(chineseLanguageKey) ?? 'zh-cn';
 
-  Future<void> toggleGfwMode() => sp.setBool(gfwModeKey, !isGfwMode);
+  Future<bool> toggleGfwMode() => sp.setBool(gfwModeKey, !isGfwMode);
 
   bool get isGfwMode => sp.getBool(gfwModeKey) ?? false;
 }

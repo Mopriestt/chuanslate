@@ -1,8 +1,12 @@
 import 'package:chuanslate/service/settings_service.dart';
+import 'package:chuanslate/service/setu_service.dart';
 import 'package:chuanslate/service/translate_service.dart';
+import 'package:chuanslate/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:translator/translator.dart';
+import 'dart:convert' show utf8;
+import 'package:collection/collection.dart';
 
 class TranslateBody extends StatefulWidget {
   const TranslateBody({super.key});
@@ -16,6 +20,7 @@ class TranslateBodyState extends State<TranslateBody> {
   Translation? _translation;
   int _lastRequestTimeMs = 0;
   double _fontSize = 36;
+  bool _setuMode = false;
 
   void resetInput() => setState(() => _controller.text = '');
 
@@ -32,6 +37,11 @@ class TranslateBodyState extends State<TranslateBody> {
       });
 
   void onInputChanged() async {
+    if (const ListEquality().equals(utf8.encode(_controller.text), secretWord)) {
+      setState(() => _setuMode = true);
+      return;
+    }
+
     _lastRequestTimeMs = DateTime.now().millisecondsSinceEpoch;
     final timeStampMs = _lastRequestTimeMs;
 
@@ -48,7 +58,10 @@ class TranslateBodyState extends State<TranslateBody> {
     if (!mounted) return;
 
     if (_lastRequestTimeMs == timeStampMs) {
-      setState(() => _translation = translation);
+      setState(() {
+        _translation = translation;
+        _setuMode = false;
+      });
     }
   }
 
@@ -86,7 +99,22 @@ class TranslateBodyState extends State<TranslateBody> {
               padding: EdgeInsets.symmetric(vertical: 24, horizontal: 120),
               child: Divider(thickness: 2),
             ),
-          if (_translation != null)
+          if (_setuMode)
+            FutureBuilder(
+              future: context.watch<SetuService>().setuUrl,
+              builder: (_, snapShot) {
+                if (!snapShot.hasData) {
+                  return const CircularProgressIndicator();
+                }
+                return Stack(children: [
+                  Image.network(snapShot.data!),
+                  IconButton(onPressed: () {
+                    context.read<SetuService>().refresh();
+                  }, icon: const Icon(Icons.refresh)),
+                ]);
+              },
+            ),
+          if (!_setuMode && _translation != null)
             Align(
               alignment: Alignment.centerLeft,
               child: _buildTranslationText(context),

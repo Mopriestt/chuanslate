@@ -1,5 +1,6 @@
 import 'package:chuanslate/home/home.dart';
 import 'package:chuanslate/service/settings_service.dart';
+import 'package:chuanslate/service/setu_service.dart';
 import 'package:chuanslate/service/translate_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ void main() async {
       providers: [
         Provider.value(value: translateService),
         Provider.value(value: settingsService),
+        ChangeNotifierProvider(create: (_) => SetuService()),
       ],
       child: app(),
     ),
